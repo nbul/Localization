@@ -23,11 +23,14 @@ MCCcl = zeros(1,numel(files));
 
 Area = zeros(1,numel(files));
 
-usedefault3 = questdlg(strcat('Which staining?'),'Settings','Golgi','Rab11','Golgi');
+usedefault3 = questdlg(strcat('Which staining?'),'Settings','Golgi','Rab11','Rab7','Golgi');
 
 if strcmp(usedefault3, 'Golgi')
     a1 = 0.3;
     a2 = 'gaussian';
+elseif strcmp(usedefault3, 'Rab11')
+    a1 = 0.5;
+    a2 = 'mean';
 else
     a1 = 0.5;
     a2 = 'mean';
