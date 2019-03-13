@@ -110,7 +110,7 @@ for i=1:numel(files)
     
     % MCC marker and E-cad
     observedcl(i) = 100*length(Signal_bothcl)/length(Signal_rabcl);
-    expectedcl(i) = 100*length(Signal_cadcl)/(length(Signal_all)-1);
+    expectedcl(i) = 100*length(Signal_cadcl)/(length(Signal_all)-length(SignalA)+length(SignalAcl)-1);
     MCCcl(i) = observedcl(i) - expectedcl(i);
     
     % Marker area
