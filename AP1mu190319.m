@@ -29,6 +29,7 @@ Cor2 = zeros(seriesCount,numel(files));
 MCC = zeros(seriesCount,numel(files));
 headers1 = {'Marker','AP1','PCC_thr','PCC_no_thr','MCC'};
 
+C = 255*255*0.7;
 
 for i=1:numel(files)
     cd(filedir);
@@ -59,7 +60,6 @@ for i=1:numel(files)
             MB = max(Series_plane2{k}(:));
         end
     end
-    C = 255*255*0.7;
     for k=1:seriesCount   
         A = double(Series_plane1{k}(:));
         B = double(Series_plane2{k}(:));
@@ -72,9 +72,9 @@ for i=1:numel(files)
         Signal(k,4) = corr(A,B);
         Cor(k,i) = Signal(k,3);
         Cor2(k,i) = Signal(k,4);
-        if ~isempty(A(A>max(Thr(:,1))*C | B>max(Thr(:,2))*C))
-            MCC(k,i) = length(B(A>max(Thr(:,1))*C & B>max(Thr(:,2))*C))/ length(A(A>max(Thr(:,1))*C)) - ...
-                length(B(B>max(Thr(:,2))*C))/length(B);
+        if ~isempty(A(A>max(Thr(:,1))*C))
+            MCC(k,i) = 100*(length(B(A>max(Thr(:,1))*C & B>max(Thr(:,2))*C))/ length(A(A>max(Thr(:,1))*C)) - ...
+                length(B(B>max(Thr(:,2))*C))/length(B));
         else
             MCC(k,i) = 0;
         end
@@ -149,14 +149,18 @@ axis ij;
 print(image72,'PCC_mean.tif', '-dtiff', '-r150');
 
 image8 = figure;
-errorbar(mean(MCC,2),1:size(Rab11,1),std(MCC,0,2),'horizontal','Linewidth',2);
+plot(MCC(:,1),1:size(Rab11,1),'Linewidth',2);
+for i = 2:numel(files)
+    hold on;
+    plot(MCC(:,i),1:size(Rab11,1),'Linewidth',2);
+end
 axis ij;
-print(image8,'MCC_mean_thr.tif', '-dtiff', '-r150');
+print(image8,'MCC.tif', '-dtiff', '-r150');
 
 image9 = figure;
 errorbar(mean(MCC,2),1:size(Rab11,1),std(MCC,0,2),'horizontal','Linewidth',2);
 axis ij;
-print(image9,'MCC_mean.tif', '-dtiff', '-r150');
+print(image9,'MCC_mean.tif', '-dtiff', '-r150'); 
 
 cd(currdir);
 clear variables;
