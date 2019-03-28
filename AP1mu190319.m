@@ -25,7 +25,9 @@ seriesCount = size(Series, 1)/2;
 Rab11 = zeros(seriesCount,numel(files));
 AP1 = zeros(seriesCount,numel(files));
 Cor = zeros(seriesCount,numel(files));
-headers1 = {'Marker','AP1','PCC'};
+Cor2 = zeros(seriesCount,numel(files));
+MCC = zeros(seriesCount,numel(files));
+headers1 = {'Marker','AP1','PCC_thr','PCC_no_thr','MCC'};
 
 
 for i=1:numel(files)
@@ -35,7 +37,7 @@ for i=1:numel(files)
     
     Series = I{1,1};
     seriesCount = size(Series, 1)/2;
-    Signal = zeros(seriesCount,3);
+    Signal = zeros(seriesCount,5);
     Thr = zeros(seriesCount,2);
     Series_plane1{1}= double(Series{1,1});
     image1 = figure;
@@ -61,10 +63,22 @@ for i=1:numel(files)
     for k=1:seriesCount   
         A = double(Series_plane1{k}(:));
         B = double(Series_plane2{k}(:));
-        %Signal(k,3) = corr(A(A>max(Thr(:,1))*C & B>max(Thr(:,2))*C),...
-        %    B(A>max(Thr(:,1))*C & B>max(Thr(:,2))*C));
-        Signal(k,3) = corr(A,B);
+        if ~isempty(A(A>max(Thr(:,1))*C | B>max(Thr(:,2))*C))
+            Signal(k,3) = corr(A(A>max(Thr(:,1))*C | B>max(Thr(:,2))*C),...
+                B(A>max(Thr(:,1))*C | B>max(Thr(:,2))*C));
+        else
+            Signal(k,3) = 0;
+        end
+        Signal(k,4) = corr(A,B);
         Cor(k,i) = Signal(k,3);
+        Cor2(k,i) = Signal(k,4);
+        if ~isempty(A(A>max(Thr(:,1))*C | B>max(Thr(:,2))*C))
+            MCC(k,i) = length(B(A>max(Thr(:,1))*C & B>max(Thr(:,2))*C))/ length(A(A>max(Thr(:,1))*C)) - ...
+                length(B(B>max(Thr(:,2))*C))/length(B);
+        else
+            MCC(k,i) = 0;
+        end
+        Signal(k,5) = MCC(k,i);
         subplot(4, ceil(seriesCount/4),k);
         plot(A,...
             B,'o','Color','r');
@@ -103,7 +117,16 @@ for i = 2:numel(files)
     plot(Cor(:,i),1:size(Rab11,1),'Linewidth',2);
 end
 axis ij;
-print(image4,'PCC.tif', '-dtiff', '-r150');
+print(image4,'PCC_thr.tif', '-dtiff', '-r150');
+
+image42 = figure;
+plot(Cor2(:,1),1:size(Rab11,1),'Linewidth',2);
+for i = 2:numel(files)
+    hold on;
+    plot(Cor2(:,i),1:size(Rab11,1),'Linewidth',2);
+end
+axis ij;
+print(image42,'PCC.tif', '-dtiff', '-r150');
 
 image5 = figure;
 errorbar(mean(Rab11,2),1:size(Rab11,1),std(Rab11,0,2),'horizontal','Linewidth',2);
@@ -118,8 +141,22 @@ print(image6,'AP1_mean.tif', '-dtiff', '-r150');
 image7 = figure;
 errorbar(mean(Cor,2),1:size(Rab11,1),std(Cor,0,2),'horizontal','Linewidth',2);
 axis ij;
-print(image7,'PCC_mean.tif', '-dtiff', '-r150');
+print(image7,'PCC_mean_thr.tif', '-dtiff', '-r150');
 
+image72 = figure;
+errorbar(mean(Cor2,2),1:size(Rab11,1),std(Cor2,0,2),'horizontal','Linewidth',2);
+axis ij;
+print(image72,'PCC_mean.tif', '-dtiff', '-r150');
+
+image8 = figure;
+errorbar(mean(MCC,2),1:size(Rab11,1),std(MCC,0,2),'horizontal','Linewidth',2);
+axis ij;
+print(image8,'MCC_mean_thr.tif', '-dtiff', '-r150');
+
+image9 = figure;
+errorbar(mean(MCC,2),1:size(Rab11,1),std(MCC,0,2),'horizontal','Linewidth',2);
+axis ij;
+print(image9,'MCC_mean.tif', '-dtiff', '-r150');
 
 cd(currdir);
 clear variables;
