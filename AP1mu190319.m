@@ -162,6 +162,10 @@ errorbar(mean(MCC,2),1:size(Rab11,1),std(MCC,0,2),'horizontal','Linewidth',2);
 axis ij;
 print(image9,'MCC_mean.tif', '-dtiff', '-r150'); 
 
+csvwrite('PCC_thr.csv', Cor);
+csvwrite('PCC.csv', Cor2);
+csvwrite('MCC.csv', MCC);
+
 cd(currdir);
 clear variables;
 close all;
