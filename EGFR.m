@@ -98,7 +98,6 @@ for i=1:numel(files)
     xlabel('Marker', 'FontSize', 18, 'FontWeight', 'bold') % x-axis label
     ylabel('E-cad', 'FontSize', 18, 'FontWeight', 'bold') % y-axis label
     % save image
-    
     image_filename = [num2str(i),'_PCC.tif'];
     print(Graph, '-dtiff', '-r150', image_filename);
     close all;
